@@ -4,7 +4,7 @@ const db = require('../../db');
 exports.getCustomers = async () => {
   try {
     const result = await db.query(
-      `SELECT id, cust_id, name, address, pan, gst, is_active
+      `SELECT id, name, address, pan, gst, is_active
        FROM customers
        ORDER BY created_at DESC`
     );
@@ -17,30 +17,29 @@ exports.getCustomers = async () => {
 
 // add
 exports.addCustomer = async (data) => {
-  const { cust_id, name, address, pan, gst } = data;
+  const { name, address, pan, gst } = data;
 
-  if (!cust_id || !name) {
+  if (!name) {
     throw new Error('VALIDATION_ERROR');
   }
 
   try {
-    // check
     const check = await db.query(
-      'SELECT id FROM customers WHERE cust_id = $1',
-      [cust_id]
+      'SELECT id FROM customers WHERE name = $1',
+      [name]
     );
 
     if (check.rows.length > 0) {
       throw new Error('DUPLICATE_CUSTOMER');
     }
 
-    // save
+    // save directly
     const result = await db.query(
       `INSERT INTO customers 
-       (cust_id, name, address, pan, gst) 
-       VALUES ($1, $2, $3, $4, $5)
-       RETURNING id, cust_id, name`,
-      [cust_id, name, address, pan, gst]
+       (name, address, pan, gst) 
+       VALUES ($1, $2, $3, $4)
+       RETURNING id, name`,
+      [name, address, pan, gst]
     );
 
     return result.rows[0];
