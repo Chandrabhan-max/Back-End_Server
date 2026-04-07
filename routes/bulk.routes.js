@@ -5,7 +5,6 @@ const os = require('os');
 
 const controller = require('../modules/bulk/bulk.controller');
 
-// Vercel/Cloud ke liye 'uploads/' ki jagah os.tmpdir() use karo
 const upload = multer({ dest: os.tmpdir() }); 
 
 router.post('/upload', upload.single('file'), controller.uploadFile);
